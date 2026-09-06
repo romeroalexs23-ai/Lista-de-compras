@@ -1,6 +1,7 @@
-const CACHE_NAME = "lista-de-compras-v1";
+const CACHE_NAME = "lista-de-compras-v2";
 const FILES_TO_CACHE = [
-  "./lista-de-compras.html",
+  "./",
+  "./index.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png"
