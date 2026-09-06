@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de compras</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#c48b2f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #f5f0e1;
+    --paper-line: #e3d9be;
+    --margin-red: #b0402a;
+    --ink: #2e2a22;
+    --ink-soft: #6b6355;
+    --green: #4f6b44;
+    --green-soft: #dfe6d8;
+    --mustard: #c48b2f;
+    --mustard-dark: #a4711f;
+    --bloom: #cf7ea0;
+    --bloom-dark: #a8577c;
+    --bloom-soft: #f2dde6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:#3c3730;
+    background-image: radial-gradient(circle at 20% 10%, #47413650 0%, transparent 40%),
+                       radial-gradient(circle at 80% 90%, #47413650 0%, transparent 40%);
+    font-family:'Work Sans', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 64px;
+  }
+  .pad{
+    position:relative;
+    width:100%;
+    max-width:440px;
+    background:var(--paper);
+    border-radius:6px 6px 14px 14px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35), 0 2px 0 rgba(0,0,0,0.05) inset;
+    overflow:hidden;
+  }
+  .rings{
+    display:flex;
+    justify-content:center;
+    gap:22px;
+    padding:14px 0 4px;
+    background:#efe8d4;
+  }
+  .rings span{
+    width:14px; height:14px;
+    border-radius:50%;
+    background:#3c3730;
+    box-shadow: inset 0 0 0 3px #efe8d4, 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .sheet{
+    position:relative;
+    padding:22px 22px 26px 34px;
+  }
+  .sheet::before{
+    content:"";
+    position:absolute;
+    left:26px; top:0; bottom:0;
+    width:1px;
+    background:var(--margin-red);
+    opacity:0.55;
+  }
+  .welcome{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin:0 0 10px;
+  }
+  .welcome svg{ width:26px; height:26px; flex:none; }
+  .welcome p{
+    margin:0;
+    font-family:'Caveat', cursive;
+    font-weight:600;
+    font-size:1.5rem;
+    color:var(--bloom-dark);
+    text-align:center;
+    line-height:1.1;
+  }
+  .flower-divider{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin:0 0 18px;
+  }
+  .flower-divider .line{
+    flex:1;
+    height:1px;
+    background:var(--bloom-soft);
+  }
+  .flower-divider svg{ width:16px; height:16px; flex:none; }
+
+  h1{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:2.6rem;
+    line-height:1;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .subtitle{
+    font-size:0.85rem;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+  }
+  .add-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:22px;
+  }
+  .add-row input[type="text"]{
+    flex:1;
+    min-width:0;
+    padding:10px 12px;
+    border:1px solid var(--paper-line);
+    border-bottom:2px solid var(--ink-soft);
+    background:#fffdf7;
+    border-radius:4px;
+    font-family:'Work Sans', sans-serif;
+    font-size:0.95rem;
+    color:var(--ink);
+    outline:none;
+  }
+  .add-row input[type="text"]:focus{
+    border-bottom:2px solid var(--green);
+  }
+  .add-row button{
+    padding:10px 16px;
+    border:none;
+    border-radius:4px;
+    background:var(--mustard);
+    color:#fffdf7;
+    font-weight:600;
+    font-size:0.9rem;
+    cursor:pointer;
+    transition:background 0.15s ease;
+    font-family:'Work Sans', sans-serif;
+  }
+  .add-row button:hover{ background:var(--mustard-dark); }
+  .add-row button:active{ transform:translateY(1px); }
+
+  .category{ margin-bottom:18px; }
+  .category-label{
+    font-size:0.78rem;
+    letter-spacing:0.02em;
+    color:var(--green);
+    font-weight:600;
+    margin:0 0 6px;
+    padding-bottom:4px;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  ul.items{ list-style:none; margin:0; padding:0; }
+  li.item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  li.item:last-child{ border-bottom:none; }
+
+  .check{
+    flex:none;
+    width:20px; height:20px;
+    border-radius:5px;
+    border:2px solid var(--ink-soft);
+    background:#fffdf7;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    padding:0;
+  }
+  .check.checked{
+    background:var(--green);
+    border-color:var(--green);
+  }
+  .check svg{ width:12px; height:12px; opacity:0; }
+  .check.checked svg{ opacity:1; }
+
+  .item-text{
+    flex:1;
+    min-width:0;
+    font-size:0.98rem;
+    word-break:break-word;
+    cursor:pointer;
+  }
+  .item.checked .item-text{
+    color:var(--ink-soft);
+    text-decoration:line-through;
+    text-decoration-color:var(--ink-soft);
+  }
+
+  .qty{
+    flex:none;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .qty button{
+    width:20px; height:20px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    border-radius:4px;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    line-height:1;
+    cursor:pointer;
+    padding:0;
+  }
+  .qty span{
+    min-width:16px;
+    text-align:center;
+    font-size:0.85rem;
+    color:var(--ink-soft);
+  }
+
+  .delete{
+    flex:none;
+    background:none;
+    border:none;
+    color:var(--margin-red);
+    font-size:1.1rem;
+    line-height:1;
+    cursor:pointer;
+    padding:2px 4px;
+    opacity:0.55;
+  }
+  .delete:hover{ opacity:1; }
+
+  .empty{
+    text-align:center;
+    padding:34px 10px 20px;
+    color:var(--ink-soft);
+  }
+  .empty svg{ width:56px; height:56px; margin-bottom:10px; opacity:0.7; }
+  .empty p{ margin:0; font-size:0.92rem; }
+
+  .footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--paper-line);
+  }
+  .count{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+  }
+  .clear-btn{
+    background:none;
+    border:none;
+    color:var(--margin-red);
+    font-size:0.82rem;
+    font-weight:600;
+    cursor:pointer;
+    padding:4px;
+  }
+  .clear-btn:disabled{
+    color:var(--ink-soft);
+    opacity:0.4;
+    cursor:default;
+  }
+</style>
+</head>
+<body>
+  <div class="pad">
+    <div class="rings">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="sheet">
+      <div class="welcome">
+        <svg viewBox="0 0 24 24"><g fill="var(--bloom)"><circle cx="12" cy="6" r="3.4"/><circle cx="12" cy="18" r="3.4"/><circle cx="6" cy="12" r="3.4"/><circle cx="18" cy="12" r="3.4"/></g><circle cx="12" cy="12" r="3" fill="var(--mustard)"/></svg>
+        <p>Bienvenida, princesita Miri</p>
+        <svg viewBox="0 0 24 24"><g fill="var(--bloom)"><circle cx="12" cy="6" r="3.4"/><circle cx="12" cy="18" r="3.4"/><circle cx="6" cy="12" r="3.4"/><circle cx="18" cy="12" r="3.4"/></g><circle cx="12" cy="12" r="3" fill="var(--mustard)"/></svg>
+      </div>
+      <h1>Lista de compras</h1>
+      <p class="subtitle" id="subtitle">Se guarda sola en este dispositivo.</p>
+
+      <div class="flower-divider">
+        <span class="line"></span>
+        <svg viewBox="0 0 24 24"><g fill="var(--bloom)"><circle cx="12" cy="7" r="2.6"/><circle cx="12" cy="17" r="2.6"/><circle cx="7" cy="12" r="2.6"/><circle cx="17" cy="12" r="2.6"/></g><circle cx="12" cy="12" r="2.2" fill="var(--mustard)"/></svg>
+        <span class="line"></span>
+      </div>
+
+      <div class="add-row">
+        <input type="text" id="itemInput" placeholder="Ej. tomates, leche, jabón..." autocomplete="off">
+        <button id="addBtn">Añadir</button>
+      </div>
+
+      <div id="listArea"></div>
+
+      <div class="footer">
+        <span class="count" id="countLabel"></span>
+        <button class="clear-btn" id="clearBtn">Vaciar comprados</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const CATEGORY_ORDER = ["Frutas y verduras","Lácteos y huevo","Carnes y pescado","Panadería","Despensa","Bebidas","Limpieza y hogar","Otros"];
+
+const KEYWORDS = {
+  "Frutas y verduras": ["manzana","platano","plátano","banana","tomate","jitomate","lechuga","cebolla","papa","patata","zanahoria","limon","limón","naranja","aguacate","palta","pepino","chile","ajo","fresa","uva","mango","pera","brocoli","brócoli","espinaca","calabaza","elote","apio","cilantro","perejil","piña","sandia","sandía","melon","melón"],
+  "Lácteos y huevo": ["leche","queso","yogurt","yogur","mantequilla","crema","huevo","huevos","margarina"],
+  "Carnes y pescado": ["pollo","carne","res","cerdo","pescado","atun","atún","camaron","camarón","jamon","jamón","tocino","salchicha","chorizo","milanesa"],
+  "Panadería": ["pan","bolillo","tortilla","pastel","galletas","croissant","concha","dona","donas"],
+  "Despensa": ["arroz","frijol","frijoles","pasta","aceite","sal","azucar","azúcar","harina","cafe","café","te ","té","cereal","sopa","salsa","mayonesa","mostaza","catsup","ketchup","miel","avena","lenteja","garbanzo"],
+  "Bebidas": ["agua","refresco","jugo","cerveza","vino","soda","leche de coco"],
+  "Limpieza y hogar": ["jabon","jabón","detergente","cloro","papel higienico","higiénico","servilletas","shampoo","champú","pasta dental","suavizante","fabuloso","trapeador","esponja","bolsas de basura","foco","pilas"]
+};
+
+function guessCategory(text){
+  const t = text.toLowerCase();
+  for(const cat of CATEGORY_ORDER){
+    if(cat === "Otros") continue;
+    const words = KEYWORDS[cat] || [];
+    for(const w of words){
+      if(t.includes(w)) return cat;
+    }
+  }
+  return "Otros";
+}
+
+const STORAGE_KEY = "shopping-items-v1";
+let items = [];
+let storageOk = true;
+
+async function loadItems(){
+  try{
+    const result = await window.storage.get(STORAGE_KEY, false);
+    items = result && result.value ? JSON.parse(result.value) : [];
+  }catch(e){
+    items = [];
+  }
+  render();
+}
+
+async function saveItems(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(items), false);
+  }catch(e){
+    storageOk = false;
+    document.getElementById('subtitle').textContent = "No se pudo guardar automáticamente en este momento.";
+  }
+}
+
+function addItem(text){
+  const clean = text.trim();
+  if(!clean) return;
+  items.unshift({
+    id: Date.now() + Math.random().toString(16).slice(2),
+    text: clean,
+    qty: 1,
+    category: guessCategory(clean),
+    checked: false
+  });
+  saveItems();
+  render();
+}
+
+function toggleItem(id){
+  const it = items.find(i => i.id === id);
+  if(it) it.checked = !it.checked;
+  saveItems();
+  render();
+}
+
+function changeQty(id, delta){
+  const it = items.find(i => i.id === id);
+  if(it) it.qty = Math.max(1, it.qty + delta);
+  saveItems();
+  render();
+}
+
+function deleteItem(id){
+  items = items.filter(i => i.id !== id);
+  saveItems();
+  render();
+}
+
+function clearChecked(){
+  items = items.filter(i => !i.checked);
+  saveItems();
+  render();
+}
+
+function render(){
+  const listArea = document.getElementById('listArea');
+  const countLabel = document.getElementById('countLabel');
+  const clearBtn = document.getElementById('clearBtn');
+
+  const checkedCount = items.filter(i => i.checked).length;
+  countLabel.textContent = items.length
+    ? `${checkedCount} de ${items.length} comprados`
+    : "";
+  clearBtn.disabled = checkedCount === 0;
+
+  if(items.length === 0){
+    listArea.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 8h12l-1.2 10.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z"/>
+          <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+        </svg>
+        <p>Tu lista está vacía. Agrega el primer producto arriba.</p>
+      </div>`;
+    return;
+  }
+
+  const byCategory = {};
+  items.forEach(it => {
+    if(!byCategory[it.category]) byCategory[it.category] = [];
+    byCategory[it.category].push(it);
+  });
+
+  let html = "";
+  CATEGORY_ORDER.forEach(cat => {
+    const catItems = byCategory[cat];
+    if(!catItems || catItems.length === 0) return;
+    html += `<div class="category"><p class="category-label">${cat}</p><ul class="items">`;
+    catItems.forEach(it => {
+      html += `
+        <li class="item ${it.checked ? 'checked' : ''}">
+          <button class="check ${it.checked ? 'checked' : ''}" data-action="toggle" data-id="${it.id}" aria-label="Marcar como comprado">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg>
+          </button>
+          <span class="item-text" data-action="toggle" data-id="${it.id}">${escapeHtml(it.text)}</span>
+          <span class="qty">
+            <button data-action="dec" data-id="${it.id}">−</button>
+            <span>${it.qty}</span>
+            <button data-action="inc" data-id="${it.id}">+</button>
+          </span>
+          <button class="delete" data-action="delete" data-id="${it.id}" aria-label="Eliminar">×</button>
+        </li>`;
+    });
+    html += `</ul></div>`;
+  });
+
+  listArea.innerHTML = html;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById('listArea').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  if(action === 'toggle') toggleItem(id);
+  if(action === 'inc') changeQty(id, 1);
+  if(action === 'dec') changeQty(id, -1);
+  if(action === 'delete') deleteItem(id);
+});
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  const input = document.getElementById('itemInput');
+  addItem(input.value);
+  input.value = "";
+  input.focus();
+});
+
+document.getElementById('itemInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    addItem(e.target.value);
+    e.target.value = "";
+  }
+});
+
+document.getElementById('clearBtn').addEventListener('click', clearChecked);
+
+loadItems();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
