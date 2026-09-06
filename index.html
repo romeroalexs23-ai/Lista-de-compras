@@ -335,23 +335,21 @@ function guessCategory(text){
 
 const STORAGE_KEY = "shopping-items-v1";
 let items = [];
-let storageOk = true;
 
-async function loadItems(){
+function loadItems(){
   try{
-    const result = await window.storage.get(STORAGE_KEY, false);
-    items = result && result.value ? JSON.parse(result.value) : [];
+    const raw = localStorage.getItem(STORAGE_KEY);
+    items = raw ? JSON.parse(raw) : [];
   }catch(e){
     items = [];
   }
   render();
 }
 
-async function saveItems(){
+function saveItems(){
   try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(items), false);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }catch(e){
-    storageOk = false;
     document.getElementById('subtitle').textContent = "No se pudo guardar automáticamente en este momento.";
   }
 }
